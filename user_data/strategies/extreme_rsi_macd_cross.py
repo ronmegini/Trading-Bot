@@ -156,7 +156,7 @@ class extreme_rsi_macd_cross(IStrategy):
             (
                 #(qtpylib.crossed_above(dataframe['rsi'], self.buy_rsi.value)) &  # Signal: RSI crosses above buy_rsi
                 (dataframe['rsi'] < 30) &
-                (qtpylib.crossed_below(dataframe['macd'], dataframe['macdsignal'])) &  # Signal: macdsignal crossed above macd
+                (qtpylib.crossed_below(dataframe['macd'], dataframe['macdsignal']))  # Signal: macdsignal crossed above macd
                 #(dataframe['volume'] > 0)  # Make sure Volume is not 0
             ),
             'enter_long'] = 1
