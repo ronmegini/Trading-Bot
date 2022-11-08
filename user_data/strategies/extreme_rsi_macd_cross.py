@@ -97,8 +97,8 @@ class extreme_rsi_macd_cross(IStrategy):
         return {
             # Main plot indicators (Moving averages, ...)
             'main_plot': {
-                'tema': {},
-                'sar': {'color': 'white'},
+                #'tema': {},
+                #'sar': {'color': 'white'},
             },
             'subplots': {
                 # Subplots - each dict defines one additional plot
