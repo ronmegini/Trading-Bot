@@ -154,9 +154,10 @@ class extreme_rsi_macd_cross(IStrategy):
         """
         dataframe.loc[
             (
-                (qtpylib.crossed_above(dataframe['rsi'], self.buy_rsi.value))  # Signal: RSI crosses above buy_rsi
+                #(qtpylib.crossed_above(dataframe['rsi'], self.buy_rsi.value)) &  # Signal: RSI crosses above buy_rsi
                 #(qtpylib.crossed_below(dataframe['macd'], dataframe['macdsignal'])) &  # Signal: macdsignal crossed above macd
                 #(dataframe['volume'] > 0)  # Make sure Volume is not 0
+                (dataframe['macd'] > dataframe['macdsignal'])
             ),
             'enter_long'] = 1
         # Uncomment to use shorts (Only used in futures/margin mode. Check the documentation for more info)
