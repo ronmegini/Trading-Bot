@@ -73,8 +73,8 @@ class extreme_rsi_macd_cross(IStrategy):
     startup_candle_count: int = 30
 
     # Strategy parameters
-    buy_rsi = IntParameter(0, 20, default=20, space="buy")
-    sell_rsi = IntParameter(80, 100, default=80, space="sell")
+    buy_rsi = IntParameter(0, 30, default=30, space="buy")
+    sell_rsi = IntParameter(70, 100, default=70, space="sell")
 
     # Optional order type mapping.
     order_types = {
@@ -155,9 +155,9 @@ class extreme_rsi_macd_cross(IStrategy):
         dataframe.loc[
             (
                 #(qtpylib.crossed_above(dataframe['rsi'], self.buy_rsi.value)) &  # Signal: RSI crosses above buy_rsi
-                #(qtpylib.crossed_below(dataframe['macd'], dataframe['macdsignal'])) &  # Signal: macdsignal crossed above macd
-                #(dataframe['volume'] > 0)  # Make sure Volume is not 0
-                (dataframe['macd'] > dataframe['macdsignal'])
+                (dataframe['rsi'] > 0 and dataframe['rsi'] < 30) &
+                (qtpylib.crossed_below(dataframe['macd'], dataframe['macdsignal'])) &  # Signal: macdsignal crossed above macd
+                (dataframe['volume'] > 0)  # Make sure Volume is not 0
             ),
             'enter_long'] = 1
         # Uncomment to use shorts (Only used in futures/margin mode. Check the documentation for more info)
