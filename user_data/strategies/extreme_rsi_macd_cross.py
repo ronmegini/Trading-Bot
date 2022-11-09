@@ -106,6 +106,10 @@ class extreme_rsi_macd_cross(IStrategy):
                     'macd': {'color': 'red'},
                     'macdsignal': {'color': 'blue'},
                 },
+                "MACD_5m": {
+                    'macd_15m': {'color': 'red'},
+                    'macdsignal_15m': {'color': 'blue'},
+                },
                 "RSI": {
                     'rsi': {'color': 'orange'},
                 }
