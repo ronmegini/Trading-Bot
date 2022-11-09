@@ -101,8 +101,8 @@ class extreme_rsi_macd_cross(IStrategy):
             'subplots': {
                 # Subplots - each dict defines one additional plot
                 "MACD 5m": {
-                    'macd': {'color': 'red'},
-                    'macdsignal': {'color': 'blue'},
+                    'macd': {'color': 'blue'},
+                    'macdsignal': {'color': 'red'},
                 },
                 "RSI 15m": {
                     'rsi_15m': {'color': 'orange'},
@@ -148,7 +148,7 @@ class extreme_rsi_macd_cross(IStrategy):
         dataframe = merge_informative_pair(dataframe, informative, self.timeframe, inf_tf, ffill=True)
 
         # RSI
-        #dataframe['rsi'] = ta.RSI(dataframe)
+        dataframe['rsi'] = ta.RSI(dataframe)
 
         # MACD
         macd = ta.MACD(dataframe)
