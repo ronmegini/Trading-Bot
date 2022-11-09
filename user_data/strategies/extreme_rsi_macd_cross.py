@@ -123,7 +123,7 @@ class extreme_rsi_macd_cross(IStrategy):
                             ("BTC/USDT", "15m"),
                             ]
         """
-        return []
+        return [("ETH/USDT", "5m")]
 
     def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
         """
@@ -134,7 +134,20 @@ class extreme_rsi_macd_cross(IStrategy):
         :param metadata: Additional information, like the currently traded pair
         :return: a Dataframe with all mandatory indicators for the strategies
         """
-    
+        # Timeframe to use data from informative pair
+        inf_tf='5m'
+        # Get the informative pair
+        informative = self.dp.get_pair_dataframe(pair=metadata['pair'], timeframe=inf_tf)
+        # Get informative pair macd
+        macd = ta.MACD(informative)
+        informative['macd'] = macd['macd']
+        informative['macdsignal'] = macd['macdsignal']
+        # Use the helper function merge_informative_pair to safely merge the pair
+        # Automatically renames the columns and merges a shorter timeframe dataframe and a longer timeframe informative pair
+        # use ffill to have the 1d value available in every row throughout the day.
+        # Without this, comparisons between columns of the original and the informative pair would only work once per day.
+        dataframe = merge_informative_pair(dataframe, informative, self.timeframe, inf_tf, ffill=True)
+
         # RSI
         dataframe['rsi'] = ta.RSI(dataframe)
 
@@ -156,7 +169,8 @@ class extreme_rsi_macd_cross(IStrategy):
             (
                 #(qtpylib.crossed_above(dataframe['rsi'], self.buy_rsi.value)) &  # Signal: RSI crosses above buy_rsi
                 (dataframe['rsi'] < 40) &
-                (qtpylib.crossed_below(dataframe['macdsignal'], dataframe['macd']))  # Signal: macdsignal crossed above macd
+                (qtpylib.crossed_below(dataframe['macdsignal_5m'], dataframe['macd_5m']))
+                #(qtpylib.crossed_below(dataframe['macdsignal'], dataframe['macd']))  # Signal: macdsignal crossed above macd
                 #(dataframe['volume'] > 0)  # Make sure Volume is not 0
             ),
             'enter_long'] = 1
