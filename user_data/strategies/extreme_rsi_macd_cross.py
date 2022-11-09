@@ -162,7 +162,6 @@ class extreme_rsi_macd_cross(IStrategy):
             (
                 (dataframe['rsi_15m'] < 30) & # 15m rsi below 30
                 (qtpylib.crossed_below(dataframe['macdsignal'], dataframe['macd'])) &  # Signal: macdsignal crossed below macd
-                (dataframe['volume'] > 0)  # Positive volume
             ),
             'enter_long'] = 1
 
@@ -170,7 +169,6 @@ class extreme_rsi_macd_cross(IStrategy):
             (
                 (dataframe['rsi_15m'] > 70) & # 15m rsi over 70
                 (qtpylib.crossed_above(dataframe['macdsignal'], dataframe['macd'])) &  # Signal: macdsignal crossed above macd
-                (dataframe['volume'] < 0)  # Negetive volume
             ),
             'enter_short'] = 1
         
