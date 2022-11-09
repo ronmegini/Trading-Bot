@@ -106,9 +106,6 @@ class extreme_rsi_macd_cross(IStrategy):
                 },
                 "RSI 15m": {
                     'rsi_15m': {'color': 'orange'},
-                },
-                "RSI 5m": {
-                    'rsi': {'color': 'orange'},
                 }
             }
         }
@@ -124,7 +121,9 @@ class extreme_rsi_macd_cross(IStrategy):
                             ("BTC/USDT", "15m"),
                             ]
         """
-        return [("ETH/USDT", "15m")]
+        pairs = self.dp.current_whitelist()
+        informative_pairs = [(pair, '15m') for pair in pairs]
+        return informative_pairs
 
     def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
         """
@@ -135,6 +134,7 @@ class extreme_rsi_macd_cross(IStrategy):
         :param metadata: Additional information, like the currently traded pair
         :return: a Dataframe with all mandatory indicators for the strategies
         """
+        # Populate 15m rsi indicator and merge with main dataframe
         # Informative pairs bars timeframe
         inf_tf='15m'
         # Get the informative pair
@@ -142,13 +142,7 @@ class extreme_rsi_macd_cross(IStrategy):
         # Get informative pair macd
         informative['rsi'] = ta.RSI(informative)
         # Use the helper function merge_informative_pair to safely merge the pair
-        # Automatically renames the columns and merges a shorter timeframe dataframe and a longer timeframe informative pair
-        # use ffill to have the 1d value available in every row throughout the day.
-        # Without this, comparisons between columns of the original and the informative pair would only work once per day.
         dataframe = merge_informative_pair(dataframe, informative, self.timeframe, inf_tf, ffill=True)
-
-        # RSI
-        dataframe['rsi'] = ta.RSI(dataframe)
 
         # MACD
         macd = ta.MACD(dataframe)
@@ -166,55 +160,15 @@ class extreme_rsi_macd_cross(IStrategy):
         """
         dataframe.loc[
             (
-                #(qtpylib.crossed_above(dataframe['rsi'], self.buy_rsi.value)) &  # Signal: RSI crosses above buy_rsi
                 (dataframe['rsi_15m'] < 30) &
-                #(qtpylib.crossed_below(dataframe['macdsignal_15m'], dataframe['macd_15m']))
-                (qtpylib.crossed_below(dataframe['macdsignal'], dataframe['macd']))  # Signal: macdsignal crossed below macd
-                #(dataframe['volume'] > 0)  # Make sure Volume is not 0
-            ),
-            'enter_long'] = 1
-        # Uncomment to use shorts (Only used in futures/margin mode. Check the documentation for more info)
-        """
-        dataframe.loc[
-            (
-                (qtpylib.crossed_above(dataframe['rsi'], self.sell_rsi.value)) &  # Signal: RSI crosses above sell_rsi
-                (dataframe['tema'] > dataframe['bb_middleband']) &  # Guard: tema above BB middle
-                (dataframe['tema'] < dataframe['tema'].shift(1)) &  # Guard: tema is falling
+                (qtpylib.crossed_below(dataframe['macdsignal'], dataframe['macd'])) &  # Signal: macdsignal crossed below macd
                 (dataframe['volume'] > 0)  # Make sure Volume is not 0
             ),
-            'enter_short'] = 1
-        """
+            'enter_long'] = 1
 
         return dataframe
 
     
     def populate_exit_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
-        """
-        Based on TA indicators, populates the exit signal for the given dataframe
-        :param dataframe: DataFrame
-        :param metadata: Additional information, like the currently traded pair
-        :return: DataFrame with exit columns populated
-        """
-        """
-        dataframe.loc[
-            (
-                (qtpylib.crossed_above(dataframe['rsi'], self.sell_rsi.value)) &  # Signal: RSI crosses above sell_rsi
-                (dataframe['tema'] > dataframe['bb_middleband']) &  # Guard: tema above BB middle
-                (dataframe['tema'] < dataframe['tema'].shift(1)) &  # Guard: tema is falling
-                (dataframe['volume'] > 0)  # Make sure Volume is not 0
-            ),
-            'exit_long'] = 1
-        # Uncomment to use shorts (Only used in futures/margin mode. Check the documentation for more info)
-        """
-        """
-        dataframe.loc[
-            (
-                (qtpylib.crossed_above(dataframe['rsi'], self.buy_rsi.value)) &  # Signal: RSI crosses above buy_rsi
-                (dataframe['tema'] <= dataframe['bb_middleband']) &  # Guard: tema below BB middle
-                (dataframe['tema'] > dataframe['tema'].shift(1)) &  # Guard: tema is raising
-                (dataframe['volume'] > 0)  # Make sure Volume is not 0
-            ),
-            'exit_short'] = 1
-        """
         return dataframe
     
