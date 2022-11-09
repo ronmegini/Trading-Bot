@@ -135,7 +135,7 @@ class extreme_rsi_macd_cross(IStrategy):
         :return: a Dataframe with all mandatory indicators for the strategies
         """
         # Timeframe to use data from informative pair
-        inf_tf='5m'
+        inf_tf='15m'
         # Get the informative pair
         informative = self.dp.get_pair_dataframe(pair=metadata['pair'], timeframe=inf_tf)
         # Get informative pair macd
