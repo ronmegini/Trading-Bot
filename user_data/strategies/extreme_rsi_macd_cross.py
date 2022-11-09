@@ -167,7 +167,7 @@ class extreme_rsi_macd_cross(IStrategy):
 
         dataframe.loc[
             (
-                (dataframe['rsi_15m'] > 70) & 15m rsi over 70
+                (dataframe['rsi_15m'] > 70) # 15m rsi over 70
                 #(qtpylib.crossed_above(dataframe['macdsignal'], dataframe['macd'])) # Signal: macdsignal crossed above macd
             ),
             'enter_short'] = 1
