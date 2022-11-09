@@ -36,7 +36,7 @@ class extreme_rsi_macd_cross(IStrategy):
     INTERFACE_VERSION = 3
 
     # Optimal timeframe for the strategy.
-    timeframe = '15m'
+    timeframe = '5m'
 
     # Can this strategy go short?
     can_short: bool = False
@@ -127,7 +127,7 @@ class extreme_rsi_macd_cross(IStrategy):
                             ("BTC/USDT", "15m"),
                             ]
         """
-        return [("ETH/USDT", "5m")]
+        return [("ETH/USDT", "15m")]
 
     def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
         """
@@ -138,14 +138,12 @@ class extreme_rsi_macd_cross(IStrategy):
         :param metadata: Additional information, like the currently traded pair
         :return: a Dataframe with all mandatory indicators for the strategies
         """
-        # Timeframe to use data from informative pair
+        # Informative pairs bars timeframe
         inf_tf='15m'
         # Get the informative pair
         informative = self.dp.get_pair_dataframe(pair=metadata['pair'], timeframe=inf_tf)
         # Get informative pair macd
-        macd = ta.MACD(informative)
-        informative['macd'] = macd['macd']
-        informative['macdsignal'] = macd['macdsignal']
+        informative['rsi'] = ta.RSI(informative)
         # Use the helper function merge_informative_pair to safely merge the pair
         # Automatically renames the columns and merges a shorter timeframe dataframe and a longer timeframe informative pair
         # use ffill to have the 1d value available in every row throughout the day.
@@ -153,7 +151,7 @@ class extreme_rsi_macd_cross(IStrategy):
         dataframe = merge_informative_pair(dataframe, informative, self.timeframe, inf_tf, ffill=True)
 
         # RSI
-        dataframe['rsi'] = ta.RSI(dataframe)
+        #dataframe['rsi'] = ta.RSI(dataframe)
 
         # MACD
         macd = ta.MACD(dataframe)
@@ -172,9 +170,9 @@ class extreme_rsi_macd_cross(IStrategy):
         dataframe.loc[
             (
                 #(qtpylib.crossed_above(dataframe['rsi'], self.buy_rsi.value)) &  # Signal: RSI crosses above buy_rsi
-                (dataframe['rsi'] < 40) &
-                (qtpylib.crossed_below(dataframe['macdsignal_15m'], dataframe['macd_15m']))
-                #(qtpylib.crossed_below(dataframe['macdsignal'], dataframe['macd']))  # Signal: macdsignal crossed above macd
+                (dataframe['rsi_15m'] < 30) &
+                #(qtpylib.crossed_below(dataframe['macdsignal_15m'], dataframe['macd_15m']))
+                (qtpylib.crossed_below(dataframe['macdsignal'], dataframe['macd']))  # Signal: macdsignal crossed below macd
                 #(dataframe['volume'] > 0)  # Make sure Volume is not 0
             ),
             'enter_long'] = 1
