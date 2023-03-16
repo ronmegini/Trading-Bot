@@ -12,5 +12,5 @@ Backtest:
 `docker-compose run --rm freqtrade backtesting --config user_data/config.json --strategy extreme_rsi_macd_cross --timerange <YYYYMMDD-YYYYMMDD> -i <bars_time>`
   
 Save plot:  
-  (make sure to use plotting image)
+  (make sure to use plotting image)  
 `docker-compose run --rm freqtrade plot-dataframe --strategy <strategy> -p <coin_pair>`
